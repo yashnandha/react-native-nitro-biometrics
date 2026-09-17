@@ -1,0 +1,23 @@
+{
+  "cxxNamespace": ["nitrobiometrics"],
+  "ios": {
+    "iosModuleName": "NitroBiometrics"
+  },
+  "android": {
+    "androidNamespace": ["nitrobiometrics"],
+    "androidCxxLibName": "nitrobiometrics"
+  },
+  "autolinking": {
+    "NitroBiometrics": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "NitroBiometrics"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "NitroBiometrics"
+      }
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
