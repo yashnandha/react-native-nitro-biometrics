@@ -18,14 +18,14 @@ class NitroBiometrics: HybridNitroBiometricsSpec {
     
     switch context.biometryType {
     case .faceID:
-      biometryType = .faceId
-      biometryTypes = [.faceId]
+      biometryType = .faceid
+      biometryTypes = [.faceid]
     case .touchID:
-      biometryType = .touchId
-      biometryTypes = [.touchId]
+      biometryType = .touchid
+      biometryTypes = [.touchid]
     case .opticID:
-      biometryType = .opticId
-      biometryTypes = [.opticId]
+      biometryType = .opticid
+      biometryTypes = [.opticid]
     case .none:
       biometryType = .none
     @unknown default:
@@ -76,11 +76,11 @@ class NitroBiometrics: HybridNitroBiometricsSpec {
     let biometryType: BiometryType
     switch context.biometryType {
     case .faceID:
-      biometryType = .faceId
+      biometryType = .faceid
     case .touchID:
-      biometryType = .touchId
+      biometryType = .touchid
     case .opticID:
-      biometryType = .opticId
+      biometryType = .opticid
     case .none:
       biometryType = .none
     @unknown default:
