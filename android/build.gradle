@@ -117,4 +117,6 @@ android {
 dependencies {
   implementation "com.facebook.react:react-android"
   implementation project(":react-native-nitro-modules")
+  implementation "androidx.biometric:biometric:1.2.0-alpha05"
+  implementation "androidx.appcompat:appcompat:1.7.0"
 }

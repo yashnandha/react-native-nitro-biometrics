@@ -7,6 +7,7 @@ import com.facebook.react.module.model.ReactModuleInfoProvider
 
 class NitroBiometricsPackage : BaseReactPackage() {
     override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
+        reactApplicationContext = reactContext
         return null
     }
 
@@ -15,6 +16,8 @@ class NitroBiometricsPackage : BaseReactPackage() {
     }
 
     companion object {
+        var reactApplicationContext: ReactApplicationContext? = null
+
         init {
             System.loadLibrary("nitrobiometrics")
         }
