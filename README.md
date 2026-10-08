@@ -2,13 +2,14 @@
 
   <h1>⚡️ react-native-nitro-biometrics</h1>
 
-  <p><strong>Blazing-fast, type-safe Biometric Authentication for React Native powered by Nitro Modules.</strong></p>
-
   <p>
-    Face ID &bull; Touch ID &bull; Optic ID &bull; BiometricPrompt (Fingerprint, Face, Iris) &bull; Device Passcode Fallback
+    <strong>Modern, type-safe biometric authentication for React Native, powered by Nitro Modules.</strong>
   </p>
 
-  <!-- NPM Chips / Badges -->
+  <p>
+    Face ID &bull; Touch ID &bull; Optic ID &bull; Fingerprint &bull; Face &bull; Iris &bull; Device Credentials
+  </p>
+
   <p>
     <a href="https://www.npmjs.com/package/react-native-nitro-biometrics">
       <img src="https://img.shields.io/npm/v/react-native-nitro-biometrics?style=for-the-badge&logo=npm&color=CB3837&logoColor=white" alt="NPM Version" />
@@ -16,22 +17,20 @@
     <a href="https://www.npmjs.com/package/react-native-nitro-biometrics">
       <img src="https://img.shields.io/npm/dm/react-native-nitro-biometrics?style=for-the-badge&logo=npm&color=2088FF&logoColor=white" alt="NPM Downloads" />
     </a>
-    <a href="https://www.npmjs.com/package/react-native-nitro-biometrics">
-      <img src="https://img.shields.io/npm/dt/react-native-nitro-biometrics?style=for-the-badge&logo=npm&color=007ACC&logoColor=white" alt="NPM Total Downloads" />
+    <a href="https://github.com/yashnandha/react-native-nitro-biometrics">
+      <img src="https://img.shields.io/github/stars/yashnandha/react-native-nitro-biometrics?style=for-the-badge&logo=github" alt="GitHub Stars" />
     </a>
     <a href="./LICENSE">
-      <img src="https://img.shields.io/npm/l/react-native-nitro-biometrics?style=for-the-badge&color=28A745" alt="License" />
+      <img src="https://img.shields.io/npm/l/react-native-nitro-biometrics?style=for-the-badge&color=28A745" alt="MIT License" />
     </a>
   </p>
 
   <p>
+    <img src="https://img.shields.io/badge/Platforms-iOS%20%7C%20Android-4E5D6C?style=for-the-badge&logo=apple&logoColor=white" alt="Platforms iOS and Android" />
+    <img src="https://img.shields.io/badge/Native-Swift%20%26%20Kotlin-F05138?style=for-the-badge&logo=swift&logoColor=white" alt="Swift and Kotlin" />
+    <img src="https://img.shields.io/badge/TypeScript-Strict%20Types-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
     <a href="https://nitro.margelo.com">
       <img src="https://img.shields.io/badge/Powered%20by-Nitro%20Modules-FF5722?style=for-the-badge&logo=react&logoColor=white" alt="Powered by Nitro Modules" />
-    </a>
-    <img src="https://img.shields.io/badge/Platforms-iOS%20%7C%20Android-4E5D6C?style=for-the-badge&logo=apple&logoColor=white" alt="Platforms iOS & Android" />
-    <img src="https://img.shields.io/badge/Native-Swift%20%26%20Kotlin-F05138?style=for-the-badge&logo=swift&logoColor=white" alt="Swift & Kotlin" />
-    <a href="https://www.typescriptlang.org">
-      <img src="https://img.shields.io/badge/TypeScript-Strict%20Types-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
     </a>
     <a href="./COLLABORATION.md">
       <img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge" alt="PRs Welcome" />
@@ -46,159 +45,241 @@
 
 - [Overview](#-overview)
 - [Why Nitro Modules?](#-why-nitro-modules)
+- [When Should You Use This?](#-when-should-you-use-this)
 - [Features](#-features)
 - [Supported Biometrics](#-supported-biometrics)
 - [Installation](#-installation)
 - [Platform Setup](#-platform-setup)
   - [iOS Configuration](#ios-configuration)
   - [Android Configuration](#android-configuration)
+
 - [Quick Start](#-quick-start)
-  - [1. Functional API](#1-functional-api)
-  - [2. React Hook (`useBiometrics`)](#2-react-hook-usebiometrics)
+  - [Functional API](#1-functional-api)
+  - [React Hook](#2-react-hook-usebiometrics)
+
 - [Production Recipes](#-production-recipes)
-  - [App Lock / Screen Gate on Resume](#recipe-1-app-lock--screen-gate-on-resume)
-  - [High-Security Transaction Authorization](#recipe-2-high-security-transaction-authorization)
-  - [Device Passcode Fallback](#recipe-3-device-passcode-fallback)
 - [API Reference](#-api-reference)
-  - [`canAuthenticate()`](#canauthenticateallowdevicecredentials-promisebiometricsstatus)
-  - [`authenticate()`](#authenticateoptions-promiseauthenticateresult)
-  - [`getBiometryType()`](#getbiometrytypeallowdevicecredentials-promisebiometrytype)
-  - [`isSensorAvailable()`](#issensoravailableallowdevicecredentials-promiseboolean)
-  - [`useBiometrics()`](#usebiometricsoptions-usebiometricsreturn)
-  - [Types & Options](#types--options)
-  - [Standardized Error Codes](#standardized-error-codes)
 - [Security & Privacy](#-security--privacy)
 - [Jest Testing & Mocking](#-jest-testing--mocking)
 - [Example App](#-example-app)
-- [Collaborating & Contributing](#-collaborating--contributing)
+- [Contributing](#-collaborating--contributing)
 - [License](#-license)
 
 ---
 
 ## 🚀 Overview
 
-`react-native-nitro-biometrics` is a modern, high-performance biometric authentication library designed from the ground up for React Native's **New Architecture**.
+`react-native-nitro-biometrics` is a modern biometric authentication library for React Native applications using the **New Architecture**.
 
-By leveraging [Nitro Modules](https://nitro.margelo.com), calls between JavaScript and native code bypass the traditional asynchronous bridge. They execute through **direct, zero-overhead C++ JSI bindings**, connecting your React Native JavaScript thread directly to Apple's **LocalAuthentication** framework on iOS and AndroidX **BiometricPrompt** on Android.
+It provides a simple, TypeScript-first API over native biometric frameworks:
+
+- **iOS:** Apple `LocalAuthentication`
+- **Android:** AndroidX `BiometricPrompt`
+- **JS/native integration:** Nitro Modules / JSI
+- **API:** Strict TypeScript types
+- **Authentication:** Native OS biometric and device credential prompts
+
+The library does **not** expose raw biometric images, templates, or biometric sensor data to JavaScript.
 
 ---
 
 ## ⚡ Why Nitro Modules?
 
-Traditional React Native biometric packages communicate over the legacy asynchronous JSON bridge, resulting in serialization penalties, unnecessary latency, and thread hops.
+`react-native-nitro-biometrics` is built around React Native's **New Architecture** and uses **Nitro Modules** for JavaScript-to-native communication.
 
-`react-native-nitro-biometrics` changes this:
+| Capability                    |   `react-native-nitro-biometrics`   |
+| :---------------------------- | :---------------------------------: |
+| **React Native Architecture** |          New Architecture           |
+| **Native Integration**        |         Nitro Modules / JSI         |
+| **TypeScript**                |         Strictly typed API          |
+| **iOS Authentication**        |         LocalAuthentication         |
+| **Android Authentication**    |           BiometricPrompt           |
+| **Device Credentials**        | Passcode / PIN / Pattern / Password |
+| **React Hook**                |          `useBiometrics()`          |
+| **Jest Testing**              |                 ✅                  |
 
-| Feature | Legacy Biometrics Libraries | `react-native-nitro-biometrics` |
-| :--- | :---: | :---: |
-| **Architecture** | Old Bridge (JSON serialization) | **Nitro Modules (Direct JSI / C++)** |
-| **Call Latency** | Milliseconds | **Microseconds (Instantaneous)** |
-| **React Native New Architecture** | Partial / Retrofitted | **Native First-Class Citizen** |
-| **TypeScript Accuracy** | Manual `.d.ts` definitions | **Spec-Generated Type Safety** |
-| **Device Credential Fallback** | Inconsistent across platforms | **Unified iOS Passcode & Android PIN/Pattern** |
-| **Built-in React Hook** | ❌ (Must write boilerplate) | **✅ Included (`useBiometrics`)** |
-| **Vision Pro / Optic ID Ready** | ❌ | **✅ (`opticId` modality recognized)** |
+> The library delegates biometric matching and authentication decisions to the native operating system APIs.
+
+---
+
+## 🎯 When Should You Use This?
+
+Use `react-native-nitro-biometrics` when your React Native application needs native biometric authentication.
+
+Common use cases include:
+
+- 🔐 Secure app login
+- 🔒 App lock and screen protection
+- 💳 Transaction authorization
+- 🏦 Banking and fintech authentication
+- 👤 Re-authentication before sensitive actions
+- 🛡️ Security settings confirmation
+- 📱 Passwordless authentication flows
+- 🔑 Device credential fallback
 
 ---
 
 ## ✨ Features
 
-- 🏎️ **Ultra-Fast JSI Invocations**: Direct memory access through C++ Nitro bindings.
-- 📱 **All Native Modalities**:
-  - **iOS**: Apple `LocalAuthentication` (`LAContext`, Face ID, Touch ID, Optic ID, Passcode Fallback).
-  - **Android**: AndroidX `BiometricPrompt` (Fingerprint, Face, Iris, Device PIN / Pattern / Passcode).
-- 🎣 **Built-in React Hook (`useBiometrics`)**: Reactive state, automatic status checks, loading states, and error handling in one line.
-- 🛡️ **Zero Biometric Exposure**: Your app never touches biometric images or raw vectors. Everything is authenticated securely in the hardware enclave (Apple Secure Enclave / Android StrongBox & TEE).
-- 🔑 **Passcode / PIN Fallback**: Gracefully fall back to device credentials when biometrics fail or aren't enrolled.
-- 🎯 **100% Strict TypeScript**: Clean, well-documented type definitions generated from the Nitro specification.
-- 🧪 **Test-Friendly**: Easy-to-mock interfaces for unit and integration testing in Jest.
+### ⚡ Nitro Modules
+
+Uses Nitro Modules / JSI for JavaScript-to-native integration in React Native's New Architecture.
+
+### 📱 Native Biometric Authentication
+
+Built on the platform authentication APIs:
+
+- iOS `LocalAuthentication`
+- AndroidX `BiometricPrompt`
+
+### 🎣 Built-in React Hook
+
+Use `useBiometrics()` to manage biometric state and authentication inside React components.
+
+### 🛡️ Zero Raw Biometric Access
+
+Your JavaScript application does not receive:
+
+- Biometric images
+- Biometric templates
+- Raw fingerprint data
+- Raw facial data
+- Sensor data
+
+Authentication is handled by the native operating system.
+
+### 🔑 Device Credential Fallback
+
+Support platform device credentials such as:
+
+- iOS Passcode
+- Android PIN
+- Android Pattern
+- Android Password
+
+### 🎯 TypeScript First
+
+Strictly typed:
+
+- Authentication options
+- Authentication results
+- Biometric types
+- Availability status
+- Error codes
+
+### 🧪 Jest Friendly
+
+The API can be mocked easily for unit tests without requiring biometric hardware.
 
 ---
 
 ## 🔍 Supported Biometrics
 
-| Modality | Platform | Hardware Example | Fallback Support |
-| :--- | :---: | :--- | :---: |
-| **Face ID** | iOS | iPhone X and newer, iPad Pro | Passcode |
-| **Touch ID** | iOS / iPadOS | iPhone SE, iPad Air/Mini, Mac | Passcode |
-| **Optic ID** | visionOS / iOS | Apple Vision Pro | Passcode |
-| **Fingerprint** | Android | Pixel, Galaxy, OnePlus, etc. | PIN / Pattern / Password |
-| **Face Unlock** | Android | Class 3 / Strong Biometric Sensors | PIN / Pattern / Password |
-| **Iris** | Android | Supported Samsung Galaxy devices | PIN / Pattern / Password |
-| **Device Credentials** | iOS & Android | System PIN, Lockscreen Pattern, Passcode | N/A |
+| Modality               |               Platform               | Availability                        |
+| :--------------------- | :----------------------------------: | :---------------------------------- |
+| **Face ID**            |                 iOS                  | Supported Face ID devices           |
+| **Touch ID**           |             iOS / iPadOS             | Supported Touch ID devices          |
+| **Optic ID**           | visionOS / supported Apple platforms | Where supported by the platform API |
+| **Fingerprint**        |               Android                | Device and OS dependent             |
+| **Face Unlock**        |               Android                | Device and OS dependent             |
+| **Iris**               |               Android                | Device and OS dependent             |
+| **Device Credentials** |            iOS / Android             | Passcode, PIN, Pattern, Password    |
+
+> Actual biometric availability depends on device hardware, OS version, enrollment state, and platform security policy.
 
 ---
 
 ## 📦 Installation
 
-Install `react-native-nitro-biometrics` and its required peer dependency `react-native-nitro-modules`:
+Install the package together with the required Nitro Modules dependency.
 
-```sh
-# Using npm
+### npm
+
+```bash
 npm install react-native-nitro-biometrics react-native-nitro-modules
+```
 
-# Using Yarn
+### Yarn
+
+```bash
 yarn add react-native-nitro-biometrics react-native-nitro-modules
+```
 
-# Using pnpm
+### pnpm
+
+```bash
 pnpm add react-native-nitro-biometrics react-native-nitro-modules
+```
 
-# Using Bun
+### Bun
+
+```bash
 bun add react-native-nitro-biometrics react-native-nitro-modules
 ```
 
 > [!NOTE]
-> Ensure your project has the React Native **New Architecture** enabled (standard in React Native 0.76+).
+> This library is intended for React Native projects using the **New Architecture**.
 
 ---
 
-## 🛠 Platform Setup
+# 🛠 Platform Setup
 
-### iOS Configuration
+## iOS Configuration
 
-1. Add `NSFaceIDUsageDescription` to your `ios/<YourAppName>/Info.plist`:
+Add the Face ID usage description to your application's `Info.plist`:
 
 ```xml
 <key>NSFaceIDUsageDescription</key>
 <string>We use Face ID to securely authenticate you and protect your account.</string>
 ```
 
-2. Install CocoaPods:
+Install CocoaPods:
 
-```sh
-cd ios && pod install && cd ..
+```bash
+cd ios
+pod install
+cd ..
 ```
 
-> [!TIP]
-> **Testing on iOS Simulator**: In the Simulator menu, go to **Features** ➔ **Face ID** (or **Touch ID**) ➔ check **Enrolled**. Use **Matching Face** or **Non-matching Face** to simulate success or failure.
+### iOS Simulator
+
+You can test biometric authentication using the simulator's biometric controls.
+
+In the Simulator menu:
+
+**Features → Face ID / Touch ID**
 
 ---
 
-### Android Configuration
+## Android Configuration
 
-1. Biometric permissions are automatically merged from the library's `AndroidManifest.xml`. If you manage permissions explicitly, verify these exist:
+Verify that your application has the required biometric permissions if your project manages them explicitly:
 
 ```xml
 <uses-permission android:name="android.permission.USE_BIOMETRIC" />
-<!-- For backwards compatibility with Android 9 (API 28) and below -->
-<uses-permission android:name="android.permission.USE_FINGERPRINT" android:maxSdkVersion="28" />
+
+<uses-permission
+    android:name="android.permission.USE_FINGERPRINT"
+    android:maxSdkVersion="28" />
 ```
 
-2. Make sure your `MainActivity` extends `ReactActivity` (which inherits from `AppCompatActivity` / `FragmentActivity`). This is standard across all React Native projects.
+### Android Activity
 
-> [!TIP]
-> **Testing on Android Emulator**: Open your emulator and run:
-> ```sh
-> adb -e emu finger touch 1
-> ```
+Android biometric authentication requires a compatible `FragmentActivity` host.
+
+### Android Emulator
+
+You can simulate fingerprint authentication with:
+
+```bash
+adb -e emu finger touch 1
+```
 
 ---
 
-## 🏁 Quick Start
+# 🏁 Quick Start
 
-### 1. Functional API
-
-The simplest way to check availability and authenticate users imperatively:
+## 1. Functional API
 
 ```tsx
 import {
@@ -207,30 +288,27 @@ import {
   getBiometryType,
 } from 'react-native-nitro-biometrics';
 
-// 1. Check device capabilities & enrollment
 async function checkSupport() {
   const status = await canAuthenticate();
 
-  console.log('Available:', status.isAvailable);       // true | false
-  console.log('Primary Biometry:', status.biometryType); // 'faceId' | 'touchId' | 'fingerprint' | 'face' | 'none'
-  console.log('All Modalities:', status.biometryTypes);  // ['faceId']
-  console.log('Enrolled:', status.enrolled);           // true | false
-  console.log('Device Passcode Set:', status.isDeviceSecure); // true | false
+  console.log('Available:', status.isAvailable);
+  console.log('Primary Biometry:', status.biometryType);
+  console.log('All Modalities:', status.biometryTypes);
+  console.log('Enrolled:', status.enrolled);
+  console.log('Device Secure:', status.isDeviceSecure);
 }
 
-// 2. Request authentication
 async function handleBiometricAuth() {
   const result = await authenticate({
     promptMessage: 'Unlock your encrypted vault',
     subtitle: 'Confirm your biometric identity',
     cancelButtonText: 'Cancel',
     fallbackButtonText: 'Use Passcode',
-    allowDeviceCredentials: true, // Allow PIN/Passcode if biometrics fail
+    allowDeviceCredentials: true,
   });
 
   if (result.success) {
     console.log('Authenticated via:', result.biometryType);
-    // Proceed to sensitive content or user session
   } else {
     console.warn('Authentication failed:', result.error);
   }
@@ -239,13 +317,12 @@ async function handleBiometricAuth() {
 
 ---
 
-### 2. React Hook (`useBiometrics`)
-
-Use the reactive `useBiometrics()` hook to automatically inspect hardware status and manage prompt states declaratively inside your UI:
+## 2. React Hook (`useBiometrics`)
 
 ```tsx
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+
 import { useBiometrics } from 'react-native-nitro-biometrics';
 
 export function BiometricLoginScreen() {
@@ -256,7 +333,10 @@ export function BiometricLoginScreen() {
     isLoading,
     error,
     authenticate,
-  } = useBiometrics({ autoCheck: true, allowDeviceCredentials: true });
+  } = useBiometrics({
+    autoCheck: true,
+    allowDeviceCredentials: true,
+  });
 
   const onAuthenticatePress = async () => {
     const result = await authenticate({
@@ -267,85 +347,71 @@ export function BiometricLoginScreen() {
     });
 
     if (result.success) {
-      // User authenticated successfully!
+      console.log('Authentication successful');
     }
   };
 
   if (isLoading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.label}>Checking biometric hardware...</Text>
-      </View>
-    );
+    return <Text>Checking biometric hardware...</Text>;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
-      <Text style={styles.subtitle}>
-        Sensor: {biometryType !== 'none' ? biometryType.toUpperCase() : 'Unavailable'}
+    <View>
+      <Text>
+        Sensor: {biometryType !== 'none' ? biometryType : 'Unavailable'}
       </Text>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? <Text>{error}</Text> : null}
 
       <TouchableOpacity
-        style={[styles.button, (!isAvailable || !enrolled) && styles.buttonDisabled]}
         onPress={onAuthenticatePress}
-        disabled={!isAvailable && !enrolled}
+        disabled={!isAvailable || !enrolled}
       >
-        <Text style={styles.buttonText}>
-          Authenticate with {biometryType === 'faceId' ? 'Face ID' : 'Biometrics'}
-        </Text>
+        <Text>Authenticate with Biometrics</Text>
       </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: '700', marginBottom: 8 },
-  subtitle: { fontSize: 16, color: '#666', marginBottom: 24 },
-  button: { backgroundColor: '#007AFF', paddingVertical: 14, paddingHorizontal: 28, borderRadius: 12 },
-  buttonDisabled: { backgroundColor: '#A0C4FF' },
-  buttonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
-  errorText: { color: '#FF3B30', marginBottom: 12, textAlign: 'center' },
-  label: { marginTop: 12, fontSize: 14, color: '#555' },
-});
 ```
 
 ---
 
-## 💡 Production Recipes
+# 💡 Production Recipes
 
-### Recipe 1: App Lock / Screen Gate on Resume
+## Recipe 1: App Lock / Screen Gate
 
-Lock sensitive screens whenever the application enters the background and prompt for biometrics upon returning:
+Authenticate when the application returns to the foreground:
 
 ```tsx
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
+
 import { authenticate } from 'react-native-nitro-biometrics';
 
 export function useAppLock(onUnlock: () => void) {
   const appState = useRef(AppState.currentState);
 
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', async (nextState: AppStateStatus) => {
-      if (appState.current.match(/inactive|background/) && nextState === 'active') {
-        // App has returned to foreground
-        const result = await authenticate({
-          promptMessage: 'Unlock App',
-          allowDeviceCredentials: true,
-        });
+    const subscription = AppState.addEventListener(
+      'change',
+      async (nextState: AppStateStatus) => {
+        if (
+          appState.current.match(/inactive|background/) &&
+          nextState === 'active'
+        ) {
+          const result = await authenticate({
+            promptMessage: 'Unlock App',
+            allowDeviceCredentials: true,
+          });
 
-        if (result.success) {
-          onUnlock();
+          if (result.success) {
+            onUnlock();
+          }
         }
+
+        appState.current = nextState;
       }
-      appState.current = nextState;
-    });
+    );
 
     return () => subscription.remove();
   }, [onUnlock]);
@@ -354,9 +420,9 @@ export function useAppLock(onUnlock: () => void) {
 
 ---
 
-### Recipe 2: High-Security Transaction Authorization
+## Recipe 2: Sensitive Transaction Authorization
 
-Prompt the user before performing sensitive actions such as fund transfers or changing security settings:
+For sensitive operations, authenticate immediately before performing the action:
 
 ```tsx
 import { authenticate } from 'react-native-nitro-biometrics';
@@ -365,39 +431,38 @@ async function authorizeTransfer(amount: number, recipient: string) {
   const result = await authenticate({
     promptMessage: `Authorize Transfer of $${amount}`,
     subtitle: `Sending to ${recipient}`,
-    description: 'Confirm your identity with biometrics to authorize this transaction.',
+    description: 'Confirm your identity to authorize this transaction.',
     cancelButtonText: 'Cancel Transfer',
-    allowDeviceCredentials: false, // Disallow passcode for strict biometric verification
-    confirmationRequired: true,    // Android: require explicit confirmation
+    allowDeviceCredentials: false,
+    confirmationRequired: true,
   });
 
   if (!result.success) {
-    if (result.error === 'userCanceled') {
-      throw new Error('Transaction was cancelled by the user.');
-    }
     throw new Error(`Authentication failed: ${result.error}`);
   }
 
-  // Proceed with transaction API call
-  return api.sendTransfer({ amount, recipient });
+  return api.sendTransfer({
+    amount,
+    recipient,
+  });
 }
 ```
 
+> Authentication should be performed as close as practical to the sensitive operation. Your backend should independently authorize and validate high-value transactions.
+
 ---
 
-### Recipe 3: Device Passcode Fallback
+## Recipe 3: Device Credential Fallback
 
-Provide a seamless fallback to the device lock PIN, pattern, or passcode if biometric enrollment is missing or verification fails:
+Allow biometric authentication with device credential fallback:
 
 ```tsx
 import { canAuthenticate, authenticate } from 'react-native-nitro-biometrics';
 
 async function unlockWithFlexibleSecurity() {
-  // Check if either biometrics OR device passcode are set up
   const status = await canAuthenticate(true);
 
   if (!status.isAvailable && !status.isDeviceSecure) {
-    alert('Please set up a device lock passcode in your system Settings.');
     return false;
   }
 
@@ -413,76 +478,144 @@ async function unlockWithFlexibleSecurity() {
 
 ---
 
-## 📖 API Reference
+# 📖 API Reference
 
-### `canAuthenticate(allowDeviceCredentials?: boolean): Promise<BiometricsStatus>`
+## `canAuthenticate()`
 
-Checks hardware availability, biometric enrollment, and device security configurations.
+Checks whether biometric authentication and/or device credentials are available.
 
-- **`allowDeviceCredentials`** *(optional, default: `false`)*: When set to `true`, `isAvailable` returns `true` if either biometric sensors or a device lock screen passcode/PIN is available.
+```ts
+const status = await canAuthenticate();
+```
 
----
+You can optionally include device credentials:
 
-### `authenticate(options: AuthenticateOptions): Promise<AuthenticateResult>`
+```ts
+const status = await canAuthenticate(true);
+```
 
-Displays the native operating system biometric prompt.
+Example result:
 
-#### `AuthenticateOptions`
-
-| Parameter | Type | Default | Platform | Description |
-| :--- | :---: | :---: | :---: | :--- |
-| `promptMessage` | `string` | *(Required)* | All | Primary title / reason shown in prompt. |
-| `subtitle` | `string` | `undefined` | Android | Subtitle displayed below the title. |
-| `description` | `string` | `undefined` | Android | Extended explanatory description. |
-| `cancelButtonText` | `string` | `"Cancel"` | All | Label for the negative / cancel button. |
-| `fallbackButtonText` | `string` | `"Use Passcode"` | iOS | Label for the alternative fallback button. |
-| `allowDeviceCredentials` | `boolean` | `false` | All | Allows fallback to device PIN / Pattern / Passcode. |
-| `confirmationRequired` | `boolean` | `false` | Android | Requires explicit button press after passive face match. |
-
----
-
-### `getBiometryType(allowDeviceCredentials?: boolean): Promise<BiometryType>`
-
-Convenience utility that resolves to the primary `BiometryType` supported on the current device.
+```ts
+{
+  isAvailable: true,
+  biometryType: 'faceId',
+  biometryTypes: ['faceId'],
+  enrolled: true,
+  isDeviceSecure: true
+}
+```
 
 ---
 
-### `isSensorAvailable(allowDeviceCredentials?: boolean): Promise<boolean>`
+## `authenticate(options)`
 
-Convenience utility that returns a simple boolean indicating whether authentication hardware is functional.
+Displays the native operating system authentication prompt.
 
----
+Example:
 
-### `useBiometrics(options?: UseBiometricsOptions): UseBiometricsReturn`
+```ts
+const result = await authenticate({
+  promptMessage: 'Authenticate',
+  allowDeviceCredentials: true,
+});
+```
 
-React hook for reactive biometric state management.
+### Options
 
-#### `UseBiometricsOptions`
-| Option | Type | Default | Description |
-| :--- | :---: | :---: | :--- |
-| `autoCheck` | `boolean` | `true` | Automatically checks hardware status on mount. |
-| `allowDeviceCredentials` | `boolean` | `false` | Considers device passcode when checking availability. |
-
-#### `UseBiometricsReturn`
-| Property | Type | Description |
-| :--- | :---: | :--- |
-| `isAvailable` | `boolean` | `true` if biometrics (or passcode if enabled) can authenticate. |
-| `biometryType` | `BiometryType` | Primary biometric type (`'faceId'`, `'touchId'`, etc.). |
-| `biometryTypes` | `BiometryType[]` | List of all supported biometric modalities detected. |
-| `enrolled` | `boolean` | `true` if at least one biometric record is enrolled. |
-| `isDeviceSecure` | `boolean` | `true` if lockscreen passcode/PIN is set. |
-| `isLoading` | `boolean` | `true` during status check or active authentication prompt. |
-| `error` | `string \| undefined` | Last error encountered. |
-| `status` | `BiometricsStatus \| null` | Full raw status object. |
-| `checkStatus` | `(allowCredentials?: boolean) => Promise<BiometricsStatus>` | Manually trigger a status refresh. |
-| `authenticate` | `(options: AuthenticateOptions) => Promise<AuthenticateResult>` | Prompt user for biometric authentication. |
+| Option                   | Type      | Default          | Platform |
+| :----------------------- | :-------- | :--------------- | :------- |
+| `promptMessage`          | `string`  | Required         | All      |
+| `subtitle`               | `string`  | `undefined`      | Android  |
+| `description`            | `string`  | `undefined`      | Android  |
+| `cancelButtonText`       | `string`  | `"Cancel"`       | All      |
+| `fallbackButtonText`     | `string`  | `"Use Passcode"` | iOS      |
+| `allowDeviceCredentials` | `boolean` | `false`          | All      |
+| `confirmationRequired`   | `boolean` | `false`          | Android  |
 
 ---
 
-### Types & Options
+## `getBiometryType()`
 
-#### `BiometryType`
-```typescript
+Returns the primary biometric type detected on the current device.
+
+```ts
+const type = await getBiometryType();
+```
+
+Device credentials can optionally be considered:
+
+```ts
+const type = await getBiometryType(true);
+```
+
+---
+
+## `isSensorAvailable()`
+
+Returns whether authentication is currently available.
+
+```ts
+const available = await isSensorAvailable();
+```
+
+With device credential support:
+
+```ts
+const available = await isSensorAvailable(true);
+```
+
+---
+
+# 🎣 `useBiometrics()`
+
+A React hook for biometric state and authentication.
+
+```ts
+const {
+  isAvailable,
+  biometryType,
+  biometryTypes,
+  enrolled,
+  isDeviceSecure,
+  isLoading,
+  error,
+  status,
+  checkStatus,
+  authenticate,
+} = useBiometrics({
+  autoCheck: true,
+  allowDeviceCredentials: true,
+});
+```
+
+### Options
+
+| Option                   | Type      | Default | Description                                            |
+| :----------------------- | :-------- | :------ | :----------------------------------------------------- |
+| `autoCheck`              | `boolean` | `true`  | Check biometric status on mount.                       |
+| `allowDeviceCredentials` | `boolean` | `false` | Include device credentials when checking availability. |
+
+### Return Values
+
+| Property         | Type                       | Description                                         |
+| :--------------- | :------------------------- | :-------------------------------------------------- |
+| `isAvailable`    | `boolean`                  | Whether authentication is available.                |
+| `biometryType`   | `BiometryType`             | Primary biometric type.                             |
+| `biometryTypes`  | `BiometryType[]`           | Detected biometric modalities.                      |
+| `enrolled`       | `boolean`                  | Whether biometric credentials are enrolled.         |
+| `isDeviceSecure` | `boolean`                  | Whether a device lock is configured.                |
+| `isLoading`      | `boolean`                  | Whether a status check or authentication is active. |
+| `error`          | `string \| undefined`      | Last error encountered.                             |
+| `status`         | `BiometricsStatus \| null` | Full biometric status.                              |
+| `checkStatus`    | `function`                 | Refresh biometric status.                           |
+| `authenticate`   | `function`                 | Start authentication.                               |
+
+---
+
+# 🧩 Types
+
+```ts
 type BiometryType =
   | 'none'
   | 'touchId'
@@ -491,10 +624,7 @@ type BiometryType =
   | 'fingerprint'
   | 'face'
   | 'iris';
-```
 
-#### `BiometricsStatus`
-```typescript
 interface BiometricsStatus {
   isAvailable: boolean;
   biometryType: BiometryType;
@@ -503,10 +633,7 @@ interface BiometricsStatus {
   isDeviceSecure: boolean;
   error?: string;
 }
-```
 
-#### `AuthenticateResult`
-```typescript
 interface AuthenticateResult {
   success: boolean;
   biometryType?: BiometryType;
@@ -515,43 +642,77 @@ interface AuthenticateResult {
 }
 ```
 
----
-
-### Standardized Error Codes
-
-Errors are mapped to uniform string identifiers across both iOS and Android:
-
-| Error Code | Explanation | Recommended UX Handling |
-| :--- | :--- | :--- |
-| `userCanceled` | User clicked Cancel or dismissed dialog. | Do not display error; let user retry when ready. |
-| `userFallback` | User chose fallback button (e.g. Passcode). | Present custom PIN input or trigger credentials. |
-| `systemCanceled` | OS interrupted prompt (phone call, app switched). | Silently reset authentication state. |
-| `notEnrolled` | Hardware present, but no biometrics enrolled. | Prompt user to enroll biometrics in Settings. |
-| `passcodeNotSet` | No device lock passcode is configured. | Instruct user to secure device with a passcode. |
-| `lockout` | Temporarily locked due to too many failed attempts. | Prompt user to wait 30 seconds or use passcode. |
-| `lockoutPermanent` | Permanently locked; requires strong device auth. | Direct user to authenticate via device lock screen. |
-| `hardwareUnavailable` | Sensor is busy or temporarily disabled. | Offer alternative login method or retry later. |
-| `notSupported` | Device has no biometric hardware capabilities. | Hide biometric toggle; use standard credentials. |
-| `activityUnavailable` | Host Android activity is not a `FragmentActivity`. | Ensure `MainActivity` inherits from `ReactActivity`. |
-| `unknown` | An unanticipated OS-level error occurred. | Log error diagnostic and provide fallback. |
+> Refer to the package source for the exact exported types and the latest API surface.
 
 ---
 
-## 🔒 Security & Privacy
+# ⚠️ Standardized Error Codes
 
-1. **Zero Raw Biometric Access**: Biometric templates (fingerprint minutiae, 3D facial depth maps) never leave the hardware's isolated security enclave. The operating system only returns a cryptographically signed Boolean confirmation.
-2. **Fresh Authentication Contexts**: Every authentication call creates a clean, ephemeral `LAContext` (iOS) or `BiometricPrompt` session (Android) to prevent replay vulnerabilities.
-3. **No Network Transmission**: Biometric data is never serialized or transmitted across network connections.
-4. **Defense-in-Depth Recommendation**: Biometrics should authenticate user presence on the device. For critical transactions, sign server challenges with a hardware-backed private key stored in the device Keystore / Keychain.
+| Error Code            | Meaning                                                |
+| :-------------------- | :----------------------------------------------------- |
+| `userCanceled`        | User cancelled or dismissed authentication.            |
+| `userFallback`        | User selected the fallback authentication option.      |
+| `systemCanceled`      | OS interrupted the authentication prompt.              |
+| `notEnrolled`         | No biometric credentials are enrolled.                 |
+| `passcodeNotSet`      | No device lock credential is configured.               |
+| `lockout`             | Temporary biometric lockout.                           |
+| `lockoutPermanent`    | Strong device authentication is required.              |
+| `hardwareUnavailable` | Biometric hardware is unavailable.                     |
+| `notSupported`        | Device does not support the requested authentication.  |
+| `activityUnavailable` | Android host activity is incompatible with the prompt. |
+| `unknown`             | Unexpected OS-level error.                             |
 
 ---
 
-## 🧪 Jest Testing & Mocking
+# 🔒 Security & Privacy
 
-When writing unit tests with Jest, mock `react-native-nitro-biometrics` without needing native binaries:
+`react-native-nitro-biometrics` delegates biometric authentication to the native operating system APIs.
 
-```typescript
-// __mocks__/react-native-nitro-biometrics.ts
+## What the library does not access
+
+The library does not directly access:
+
+- ❌ Biometric images
+- ❌ Fingerprint images
+- ❌ Facial images used for biometric matching
+- ❌ Biometric templates
+- ❌ Raw biometric sensor data
+
+The application receives an authentication result from the platform API rather than the user's biometric data.
+
+## No Network Transmission
+
+The library does not send biometric information to a remote server.
+
+Your application's own networking behavior is outside the scope of this package.
+
+## Recommended High-Security Architecture
+
+For high-value authentication flows, consider combining:
+
+1. Native biometric user authentication
+2. Hardware-backed cryptographic keys
+3. Server-generated challenges
+4. Cryptographic challenge signing
+5. Server-side authorization and validation
+
+> Biometric security ultimately depends on the operating system, device hardware, enrollment state, and platform security configuration.
+
+---
+
+# 🧪 Jest Testing & Mocking
+
+The package APIs can be mocked for unit tests.
+
+Create:
+
+```text
+__mocks__/react-native-nitro-biometrics.ts
+```
+
+Example:
+
+```ts
 export const canAuthenticate = jest.fn().mockResolvedValue({
   isAvailable: true,
   biometryType: 'faceId',
@@ -566,6 +727,7 @@ export const authenticate = jest.fn().mockResolvedValue({
 });
 
 export const getBiometryType = jest.fn().mockResolvedValue('faceId');
+
 export const isSensorAvailable = jest.fn().mockResolvedValue(true);
 
 export const useBiometrics = jest.fn().mockReturnValue({
@@ -577,52 +739,149 @@ export const useBiometrics = jest.fn().mockReturnValue({
   isLoading: false,
   error: undefined,
   checkStatus: jest.fn(),
-  authenticate: jest.fn().mockResolvedValue({ success: true, biometryType: 'faceId' }),
+  authenticate: jest.fn().mockResolvedValue({
+    success: true,
+    biometryType: 'faceId',
+  }),
 });
 ```
 
 ---
 
-## 📱 Example App
+# 📱 Example App
 
-A full-featured showcase app demonstrating all modalities, error triggers, and hooks is available in the [`example/`](./example/) directory.
+A showcase application is available in the repository's [`example/`](./example/) directory.
 
-To run the example app:
+The example demonstrates:
 
-```sh
-# 1. Install dependencies
+- Biometric availability
+- Biometric type detection
+- Authentication
+- Device credential fallback
+- Error handling
+- `useBiometrics()` usage
+- Platform-specific behavior
+
+Example commands:
+
+```bash
 yarn
-
-# 2. Start Metro bundler
 yarn example start
-
-# 3. Run on iOS
 yarn example ios
+```
 
-# 4. Run on Android
+Android:
+
+```bash
 yarn example android
 ```
 
 ---
 
-## 🤝 Collaborating & Contributing
+# 🏗️ Architecture
 
-We welcome contributions of all sizes! Whether you are:
-- Reporting a bug
-- Proposing new features (e.g., CryptoObject signing, Passkey integration)
-- Improving documentation
-- Optimizing native Swift or Kotlin implementations
+The library follows a simple architecture:
 
-Please check out our **[Collaboration Guide (COLLABORATION.md)](./COLLABORATION.md)** and **[Contributing Guide (CONTRIBUTING.md)](./CONTRIBUTING.md)** to get started with our development workflows, code standards, and PR guidelines.
+```text
+React Native Application
+          │
+          ▼
+ TypeScript API / Hook
+          │
+          ▼
+    Nitro Modules
+          │
+       JSI / Native
+       ┌────┴────┐
+       ▼         ▼
+     iOS      Android
+       │         │
+       ▼         ▼
+LocalAuth   BiometricPrompt
+       │         │
+       ▼         ▼
+ Native OS Authentication
+```
+
+This keeps platform-specific biometric handling inside the native authentication frameworks.
 
 ---
 
-## 📄 License
+# 🤝 Collaborating & Contributing
 
-This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
+Contributions are welcome.
+
+You can help by:
+
+- Reporting bugs
+- Proposing features
+- Improving documentation
+- Adding tests
+- Improving Swift implementations
+- Improving Kotlin implementations
+- Testing on different devices
+- Sharing integration feedback
+
+Before contributing, review:
+
+- [`COLLABORATION.md`](./COLLABORATION.md)
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+
+---
+
+# 🐛 Reporting Issues
+
+If you find a bug, please open an issue with:
+
+- React Native version
+- Package version
+- iOS / Android version
+- Device model
+- New Architecture status
+- Steps to reproduce
+- Expected behavior
+- Actual behavior
+- Relevant logs
+
+Please avoid posting sensitive authentication information or personal data.
+
+---
+
+# ⭐ Support the Project
+
+If this package is useful in your project, consider:
+
+- ⭐ Starring the repository
+- 🐛 Reporting issues
+- 💡 Suggesting improvements
+- 🔧 Contributing pull requests
+- 📣 Sharing the package with other React Native developers
+
+Every contribution helps improve the project.
+
+---
+
+# 📄 License
+
+This project is licensed under the **MIT License**.
+
+See [`LICENSE`](./LICENSE) for details.
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/yashnandha">Yash Nandha</a> and the open-source community. Powered by <a href="https://nitro.margelo.com">Nitro Modules</a>.</sub>
+
+  <sub>
+    Built by
+    <a href="https://github.com/yashnandha">Yash Nandha</a>
+    and the open-source community.
+  </sub>
+
+  <br />
+
+  <sub>
+    Powered by
+    <a href="https://nitro.margelo.com">Nitro Modules</a>.
+  </sub>
+
 </div>
