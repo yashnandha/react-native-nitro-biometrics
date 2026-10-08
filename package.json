@@ -1,6 +1,6 @@
 {
   "name": "react-native-nitro-biometrics",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Modern, type-safe biometric authentication for React Native, powered by Nitro Modules. Supports Face ID, Touch ID, Optic ID, Fingerprint, Face, Iris, and device credential fallback.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
