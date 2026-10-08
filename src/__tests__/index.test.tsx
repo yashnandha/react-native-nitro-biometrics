@@ -1,9 +1,6 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import ReactTestRenderer, { act } from 'react-test-renderer';
-import type {
-  BiometricsStatus,
-  AuthenticateResult,
-} from '../index';
+import type { BiometricsStatus, AuthenticateResult } from '../index';
 
 interface MockState {
   status: BiometricsStatus;
@@ -27,7 +24,9 @@ const mockState: MockState = {
   },
 };
 
-const mockCanAuthenticate = jest.fn(async (_allowDeviceCredentials?: boolean) => mockState.status);
+const mockCanAuthenticate = jest.fn(
+  async (_allowDeviceCredentials?: boolean) => mockState.status
+);
 const mockAuthenticate = jest.fn(async (_options: any) => mockState.authResult);
 
 jest.mock('react-native-nitro-modules', () => {

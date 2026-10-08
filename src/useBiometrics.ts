@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { canAuthenticate, authenticate as nativeAuthenticate } from './biometrics';
+import {
+  canAuthenticate,
+  authenticate as nativeAuthenticate,
+} from './biometrics';
 import type {
   BiometricsStatus,
   AuthenticateOptions,
@@ -91,7 +94,9 @@ export function useBiometrics(
       setError(undefined);
       try {
         const result = await canAuthenticate(
-          allowCredentials !== undefined ? allowCredentials : allowDeviceCredentials
+          allowCredentials !== undefined
+            ? allowCredentials
+            : allowDeviceCredentials
         );
         setStatus(result);
         if (result.error) {

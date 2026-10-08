@@ -144,7 +144,9 @@ export default function App() {
             </View>
 
             <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>Device Secure (PIN/Passcode)</Text>
+              <Text style={styles.statusLabel}>
+                Device Secure (PIN/Passcode)
+              </Text>
               <Text
                 style={[
                   styles.statusValue,
@@ -175,7 +177,9 @@ export default function App() {
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>
-              {authInProgress ? 'Authenticating...' : 'Authenticate (Biometrics Only)'}
+              {authInProgress
+                ? 'Authenticating...'
+                : 'Authenticate (Biometrics Only)'}
             </Text>
           </TouchableOpacity>
 

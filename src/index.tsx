@@ -7,7 +7,10 @@ export {
 } from './biometrics';
 
 export { useBiometrics } from './useBiometrics';
-export type { UseBiometricsOptions, UseBiometricsReturn } from './useBiometrics';
+export type {
+  UseBiometricsOptions,
+  UseBiometricsReturn,
+} from './useBiometrics';
 
 export type {
   BiometryType,

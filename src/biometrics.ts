@@ -28,10 +28,14 @@ export const NitroBiometrics: NitroBiometricsType = {
   name: 'NitroBiometrics',
   equals: (other) => other === NitroBiometrics,
   dispose: () => {},
-  canAuthenticate: async (_allowDeviceCredentials?: boolean): Promise<BiometricsStatus> => {
+  canAuthenticate: async (
+    _allowDeviceCredentials?: boolean
+  ): Promise<BiometricsStatus> => {
     return defaultStatus;
   },
-  authenticate: async (_options: AuthenticateOptions): Promise<AuthenticateResult> => {
+  authenticate: async (
+    _options: AuthenticateOptions
+  ): Promise<AuthenticateResult> => {
     return defaultResult;
   },
 };

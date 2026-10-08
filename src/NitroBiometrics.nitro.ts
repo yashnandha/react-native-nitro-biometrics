@@ -1,13 +1,7 @@
 import type { HybridObject } from 'react-native-nitro-modules';
 
 export type BiometryType =
-  | 'none'
-  | 'touchId'
-  | 'faceId'
-  | 'opticId'
-  | 'fingerprint'
-  | 'face'
-  | 'iris';
+  'none' | 'touchId' | 'faceId' | 'opticId' | 'fingerprint' | 'face' | 'iris';
 
 export interface BiometricsStatus {
   /**
