@@ -1,0 +1,166 @@
+name: Release & Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Release type (patch, minor, major)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      dry_run:
+        description: 'Dry run (build and test without publishing to npm or GitHub)'
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  validate:
+    name: Validate, Test & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js & Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Run Tests
+        run: yarn test
+
+      - name: Build Package
+        run: yarn prepare
+
+      - name: Check Package Integrity
+        run: npm pack --dry-run
+
+  publish:
+    name: Publish NPM & Create GitHub Release
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js & Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Configure Git User
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Version Bump (Workflow Dispatch only)
+        if: github.event_name == 'workflow_dispatch' && !inputs.dry_run
+        run: |
+          npm version ${{ inputs.version_type }} --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "PACKAGE_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+          git commit -am "chore: release ${NEW_VERSION}"
+          git tag "${NEW_VERSION}"
+          git push origin HEAD:${{ github.ref_name }} --tags
+
+      - name: Read Current Version
+        if: env.PACKAGE_VERSION == ''
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "PACKAGE_VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Build Library Artifacts
+        run: yarn prepare
+
+      - name: Publish to NPM
+        if: ${{ !inputs.dry_run }}
+        run: |
+          npm config set //registry.npmjs.org/:_authToken "${{ secrets.NPM_TOKEN }}"
+          npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release & Attach Tarball
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${PACKAGE_VERSION}"
+          npm pack
+          TARBALL="react-native-nitro-biometrics-${TAG}.tgz"
+          gh release create "${TAG}" "${TARBALL}" \
+            --title "v${TAG}" \
+            --generate-notes \
+            --verify-tag
+
+      - name: React Native Directory Submission
+        env:
+          DIRECTORY_TOKEN: ${{ secrets.DIRECTORY_SUBMIT_TOKEN || secrets.GH_PAT }}
+          GH_TOKEN: ${{ secrets.DIRECTORY_SUBMIT_TOKEN || secrets.GH_PAT }}
+        run: |
+          if [ -n "$DIRECTORY_TOKEN" ] && [ "${{ inputs.dry_run }}" != "true" ]; then
+            echo "Submitting to React Native Directory via CLI..."
+            npx --yes rn-directory autoSubmit || echo "CLI autoSubmit attempt completed."
+          fi
+
+          cat << 'EOF' >> $GITHUB_STEP_SUMMARY
+          ## 🚀 Release Succeeded!
+
+          - **Version:** `${{ env.PACKAGE_VERSION }}`
+          - **NPM Package:** https://www.npmjs.com/package/react-native-nitro-biometrics
+          - **GitHub Release:** https://github.com/${{ github.repository }}/releases/tag/${{ env.PACKAGE_VERSION }}
+
+          ---
+
+          ### 📱 React Native Directory Listing
+          To add or update **react-native-nitro-biometrics** in [reactnative.directory](https://reactnative.directory):
+
+          #### Option 1: Automatic CLI (Run locally in your terminal)
+          ```bash
+          bunx rn-directory autoSubmit
+          # or
+          npx rn-directory submit
+          ```
+
+          #### Option 2: Add Entry to `react-native-community/directory`
+          In [react-native-community/directory](https://github.com/react-native-community/directory), edit `react-native-libraries.json` and append the following entry at the end:
+
+          ```json
+          {
+            "githubUrl": "https://github.com/yashnandha/react-native-nitro-biometrics",
+            "npmPkg": "react-native-nitro-biometrics",
+            "examples": [
+              "https://github.com/yashnandha/react-native-nitro-biometrics/tree/master/example"
+            ],
+            "ios": true,
+            "android": true,
+            "web": true,
+            "newArchitecture": true
+          }
+          ```
+          EOF
+

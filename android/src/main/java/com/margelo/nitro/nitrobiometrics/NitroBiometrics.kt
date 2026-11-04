@@ -39,17 +39,11 @@ class NitroBiometrics : HybridNitroBiometricsSpec() {
       return promise
     }
 
-    val authenticators = if (allowDeviceCredentials == true) {
-      BiometricManager.Authenticators.BIOMETRIC_STRONG or
-        BiometricManager.Authenticators.BIOMETRIC_WEAK or
-        BiometricManager.Authenticators.DEVICE_CREDENTIAL
-    } else {
-      BiometricManager.Authenticators.BIOMETRIC_STRONG or
-        BiometricManager.Authenticators.BIOMETRIC_WEAK
-    }
+    val biometricOnlyAuthenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or
+      BiometricManager.Authenticators.BIOMETRIC_WEAK
 
     val biometricManager = BiometricManager.from(ctx)
-    val canAuthResult = biometricManager.canAuthenticate(authenticators)
+    val bioAuthResult = biometricManager.canAuthenticate(biometricOnlyAuthenticators)
 
     val pm = ctx.packageManager
     val biometryList = mutableListOf<BiometryType>()
@@ -65,8 +59,8 @@ class NitroBiometrics : HybridNitroBiometricsSpec() {
     }
 
     val primaryType = when {
-      biometryList.contains(BiometryType.FACE) -> BiometryType.FACE
       biometryList.contains(BiometryType.FINGERPRINT) -> BiometryType.FINGERPRINT
+      biometryList.contains(BiometryType.FACE) -> BiometryType.FACE
       biometryList.contains(BiometryType.IRIS) -> BiometryType.IRIS
       else -> BiometryType.NONE
     }
@@ -79,9 +73,23 @@ class NitroBiometrics : HybridNitroBiometricsSpec() {
       keyguardManager?.isKeyguardSecure ?: false
     }
 
+    // Check biometric credential enrollment independently from device credentials
+    val enrolled = bioAuthResult != BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED &&
+      bioAuthResult != BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE
+
+    val authenticators = if (allowDeviceCredentials == true) {
+      biometricOnlyAuthenticators or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+    } else {
+      biometricOnlyAuthenticators
+    }
+
+    val canAuthResult = if (allowDeviceCredentials == true) {
+      biometricManager.canAuthenticate(authenticators)
+    } else {
+      bioAuthResult
+    }
+
     val isAvailable = canAuthResult == BiometricManager.BIOMETRIC_SUCCESS
-    val enrolled = canAuthResult != BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED &&
-      canAuthResult != BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE
 
     val error = when (canAuthResult) {
       BiometricManager.BIOMETRIC_SUCCESS -> null
@@ -125,13 +133,25 @@ class NitroBiometrics : HybridNitroBiometricsSpec() {
 
     val pm = fragmentActivity.packageManager
     val primaryType = when {
-      Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && pm.hasSystemFeature(PackageManager.FEATURE_FACE) -> BiometryType.FACE
       pm.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT) -> BiometryType.FINGERPRINT
+      Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && pm.hasSystemFeature(PackageManager.FEATURE_FACE) -> BiometryType.FACE
       Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && pm.hasSystemFeature(PackageManager.FEATURE_IRIS) -> BiometryType.IRIS
       else -> null
     }
 
     Handler(Looper.getMainLooper()).post {
+      if (fragmentActivity.isFinishing || fragmentActivity.isDestroyed) {
+        promise.resolve(
+          AuthenticateResult(
+            success = false,
+            biometryType = primaryType,
+            error = "activityUnavailable",
+            warning = "Current activity is finishing or destroyed"
+          )
+        )
+        return@post
+      }
+
       try {
         val authenticators = if (options.allowDeviceCredentials == true) {
           BiometricManager.Authenticators.BIOMETRIC_STRONG or
@@ -166,10 +186,16 @@ class NitroBiometrics : HybridNitroBiometricsSpec() {
           object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
               super.onAuthenticationSucceeded(result)
+              val usedBiometryType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                result.authenticationType == BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL) {
+                null
+              } else {
+                primaryType
+              }
               promise.resolve(
                 AuthenticateResult(
                   success = true,
-                  biometryType = primaryType,
+                  biometryType = usedBiometryType,
                   error = null,
                   warning = null
                 )

@@ -8,10 +8,10 @@ class NitroBiometrics: HybridNitroBiometricsSpec {
     let promise = Promise<BiometricsStatus>()
     
     let context = LAContext()
-    let policy: LAPolicy = (allowDeviceCredentials == true) ? .deviceOwnerAuthentication : .deviceOwnerAuthenticationWithBiometrics
     
-    var laError: NSError?
-    let canEvaluate = context.canEvaluatePolicy(policy, error: &laError)
+    // Always evaluate biometric policy first to inspect hardware type and biometric enrollment status
+    var bioError: NSError?
+    let canEvaluateBiometrics = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &bioError)
     
     let biometryType: BiometryType
     var biometryTypes: [BiometryType] = []
@@ -32,6 +32,7 @@ class NitroBiometrics: HybridNitroBiometricsSpec {
       biometryType = .none
     }
     
+    // Check if device passcode is set
     var isDeviceSecure = false
     var passcodeError: NSError?
     if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &passcodeError) {
@@ -40,15 +41,28 @@ class NitroBiometrics: HybridNitroBiometricsSpec {
       isDeviceSecure = true
     }
     
-    let enrolled = (context.biometryType != .none) && (laError?.code != LAError.biometryNotEnrolled.rawValue)
+    // Biometric credentials enrollment check (independent of device passcode)
+    let enrolled = (context.biometryType != .none) && (bioError?.code != LAError.biometryNotEnrolled.rawValue)
     
+    // Overall availability depends on whether device credentials fallback is allowed
+    let isAvailable: Bool
     var mappedError: String? = nil
-    if let error = laError {
-      mappedError = mapLAErrorCode(error.code)
+    
+    if allowDeviceCredentials == true {
+      var credError: NSError?
+      isAvailable = context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &credError)
+      if let error = credError {
+        mappedError = NitroBiometrics.mapLAErrorCode(error.code)
+      }
+    } else {
+      isAvailable = canEvaluateBiometrics
+      if let error = bioError {
+        mappedError = NitroBiometrics.mapLAErrorCode(error.code)
+      }
     }
     
     let status = BiometricsStatus(
-      isAvailable: canEvaluate,
+      isAvailable: isAvailable,
       biometryType: biometryType,
       biometryTypes: biometryTypes,
       enrolled: enrolled,
@@ -73,29 +87,31 @@ class NitroBiometrics: HybridNitroBiometricsSpec {
     
     let policy: LAPolicy = (options.allowDeviceCredentials == true) ? .deviceOwnerAuthentication : .deviceOwnerAuthenticationWithBiometrics
     
-    let biometryType: BiometryType
-    switch context.biometryType {
-    case .faceID:
-      biometryType = .faceid
-    case .touchID:
-      biometryType = .touchid
-    case .opticID:
-      biometryType = .opticid
-    case .none:
-      biometryType = .none
-    @unknown default:
-      biometryType = .none
-    }
+    // Evaluate policy support beforehand to populate context.biometryType
+    var preError: NSError?
+    _ = context.canEvaluatePolicy(policy, error: &preError)
     
     let prompt = options.promptMessage
     
-    context.evaluatePolicy(policy, localizedReason: prompt) { [weak self] success, error in
-      guard let self = self else { return }
+    context.evaluatePolicy(policy, localizedReason: prompt) { success, error in
+      let resolvedBiometryType: BiometryType
+      switch context.biometryType {
+      case .faceID:
+        resolvedBiometryType = .faceid
+      case .touchID:
+        resolvedBiometryType = .touchid
+      case .opticID:
+        resolvedBiometryType = .opticid
+      default:
+        resolvedBiometryType = .none
+      }
+      
+      let biometryTypeResult: BiometryType? = (resolvedBiometryType != .none) ? resolvedBiometryType : nil
       
       if success {
         let result = AuthenticateResult(
           success: true,
-          biometryType: (biometryType != .none) ? biometryType : nil,
+          biometryType: biometryTypeResult,
           error: nil,
           warning: nil
         )
@@ -103,14 +119,14 @@ class NitroBiometrics: HybridNitroBiometricsSpec {
       } else {
         var errorString = "unknown"
         if let laError = error as? LAError {
-          errorString = self.mapLAErrorCode(laError.code.rawValue)
+          errorString = NitroBiometrics.mapLAErrorCode(laError.code.rawValue)
         } else if let nsError = error as? NSError {
-          errorString = self.mapLAErrorCode(nsError.code)
+          errorString = NitroBiometrics.mapLAErrorCode(nsError.code)
         }
         
         let result = AuthenticateResult(
           success: false,
-          biometryType: (biometryType != .none) ? biometryType : nil,
+          biometryType: biometryTypeResult,
           error: errorString,
           warning: nil
         )
@@ -121,7 +137,7 @@ class NitroBiometrics: HybridNitroBiometricsSpec {
     return promise
   }
   
-  private func mapLAErrorCode(_ code: Int) -> String {
+  private static func mapLAErrorCode(_ code: Int) -> String {
     switch code {
     case LAError.authenticationFailed.rawValue:
       return "failed"
